@@ -57,8 +57,8 @@ const handleMenuClick = (menuId: string) => {
 .sidebar {
   width: 260px;
   height: 100vh;
-  background: linear-gradient(180deg, #12121a 0%, #0d0d12 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   padding: 28px 0;
@@ -75,7 +75,7 @@ const handleMenuClick = (menuId: string) => {
   height: 200px;
   background: radial-gradient(
     ellipse at 50% 0%,
-    rgba(59, 130, 246, 0.08) 0%,
+    var(--primary-light) 0%,
     transparent 70%
   );
   pointer-events: none;
@@ -96,13 +96,13 @@ const handleMenuClick = (menuId: string) => {
   height: 56px;
   background: linear-gradient(
     135deg,
-    rgba(59, 130, 246, 0.2) 0%,
-    rgba(99, 102, 241, 0.2) 100%
+    var(--primary-light) 0%,
+    var(--primary-light) 100%
   );
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid var(--primary-color);
   border-radius: 14px;
   margin-bottom: 20px;
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 32px var(--primary-glow);
   animation: float 3s ease-in-out infinite;
 }
 
@@ -119,10 +119,7 @@ const handleMenuClick = (menuId: string) => {
 .app-title {
   font-size: 22px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ffffff 0%, #a0a0aa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
   margin-bottom: 6px;
   letter-spacing: -0.5px;
 }
@@ -160,13 +157,13 @@ const handleMenuClick = (menuId: string) => {
   transform: translateY(-50%);
   width: 3px;
   height: 0;
-  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
   border-radius: 0 2px 2px 0;
   transition: height 0.25s ease;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-hover);
   color: var(--text-primary);
 }
 
@@ -175,13 +172,9 @@ const handleMenuClick = (menuId: string) => {
 }
 
 .nav-item.active {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.15) 0%,
-    rgba(99, 102, 241, 0.1) 100%
-  );
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+  background: var(--primary-light);
+  color: var(--primary-color);
+  box-shadow: 0 4px 20px var(--primary-glow);
 }
 
 .nav-item.active::before {

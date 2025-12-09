@@ -35,7 +35,7 @@ const handleMenuChange = (menuId: string) => {
 
 .main-content {
   flex: 1;
-  background: linear-gradient(135deg, #0f0f14 0%, #13131a 100%);
+  background: var(--bg-dark);
   overflow: hidden;
   position: relative;
 }
@@ -48,11 +48,7 @@ const handleMenuChange = (menuId: string) => {
   right: -20%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(
-    circle,
-    rgba(59, 130, 246, 0.03) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
   pointer-events: none;
 }
 

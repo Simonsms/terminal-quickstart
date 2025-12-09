@@ -142,10 +142,7 @@ const handleDelete = async (script: ScriptConfig) => {
 .page-title {
   font-size: 28px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ffffff 0%, #c0c0cc 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.5px;
 }
@@ -153,7 +150,7 @@ const handleDelete = async (script: ScriptConfig) => {
 .script-count {
   font-size: 14px;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-hover);
   padding: 4px 12px;
   border-radius: 20px;
 }
@@ -190,28 +187,29 @@ const handleDelete = async (script: ScriptConfig) => {
 
 .script-grid {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
   overflow-y: auto;
   padding-bottom: 16px;
   padding-right: 8px;
+  align-content: start;
 }
 
 /* 卡片入场动画 */
 .script-grid > * {
-  animation: slideUp 0.4s ease forwards;
+  animation: scaleIn 0.4s ease forwards;
   opacity: 0;
 }
 
-@keyframes slideUp {
+@keyframes scaleIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: scale(0.9);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
   }
 }
 
@@ -233,5 +231,11 @@ const handleDelete = async (script: ScriptConfig) => {
 }
 .script-grid > *:nth-child(6) {
   animation-delay: 0.3s;
+}
+.script-grid > *:nth-child(7) {
+  animation-delay: 0.35s;
+}
+.script-grid > *:nth-child(8) {
+  animation-delay: 0.4s;
 }
 </style>

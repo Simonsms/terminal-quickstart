@@ -28,6 +28,43 @@
   --success-color: #22c55e;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
+
+  /* 高亮色 - 目录和命令 */
+  --highlight-path: #60a5fa;
+  --highlight-command: #a78bfa;
+}
+
+/* 浅色主题 */
+[data-theme="light"] {
+  /* 主色调 */
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: rgba(37, 99, 235, 0.1);
+  --primary-glow: rgba(37, 99, 235, 0.3);
+
+  /* 背景色 */
+  --bg-dark: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-hover: #f1f5f9;
+  --bg-input: #f1f5f9;
+
+  /* 边框 */
+  --border-color: #e2e8f0;
+  --border-hover: #cbd5e1;
+
+  /* 文字 */
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  /* 成功/警告/危险 */
+  --success-color: #16a34a;
+  --warning-color: #d97706;
+  --danger-color: #dc2626;
+
+  /* 高亮色 - 目录和命令 */
+  --highlight-path: #2563eb;
+  --highlight-command: #7c3aed;
 }
 
 * {

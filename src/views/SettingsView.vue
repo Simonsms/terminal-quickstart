@@ -6,6 +6,36 @@
 
     <div class="settings-content">
       <div class="settings-section">
+        <h3 class="section-title">外观</h3>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">主题</span>
+            <p class="setting-description">选择应用程序的外观主题</p>
+          </div>
+          <div class="setting-value">
+            <div class="theme-switcher">
+              <button
+                class="theme-btn"
+                :class="{ active: theme === 'light' }"
+                @click="setTheme('light')"
+              >
+                <el-icon :size="16"><Sunny /></el-icon>
+                <span>浅色</span>
+              </button>
+              <button
+                class="theme-btn"
+                :class="{ active: theme === 'dark' }"
+                @click="setTheme('dark')"
+              >
+                <el-icon :size="16"><Moon /></el-icon>
+                <span>深色</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
         <h3 class="section-title">数据存储</h3>
         <div class="setting-item">
           <div class="setting-info">
@@ -48,7 +78,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { invoke } from "@tauri-apps/api/core";
-import { FolderOpened } from "@element-plus/icons-vue";
+import { FolderOpened, Sunny, Moon } from "@element-plus/icons-vue";
+import { useThemeStore } from "../stores/themeStore";
+import { storeToRefs } from "pinia";
+
+const themeStore = useThemeStore();
+const { theme } = storeToRefs(themeStore);
+const { setTheme } = themeStore;
 
 const configPath = ref<string>("");
 
@@ -86,10 +122,7 @@ const openConfigFolder = async () => {
 .page-title {
   font-size: 28px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ffffff 0%, #c0c0cc 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.5px;
 }
@@ -100,8 +133,8 @@ const openConfigFolder = async () => {
 }
 
 .settings-section {
-  background: rgba(24, 24, 28, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
@@ -121,7 +154,7 @@ const openConfigFolder = async () => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .setting-item:last-child {
@@ -152,8 +185,8 @@ const openConfigFolder = async () => {
 
 .config-path {
   font-size: 12px;
-  color: var(--text-secondary);
-  background: rgba(0, 0, 0, 0.3);
+  color: var(--highlight-path);
+  background: var(--bg-input);
   padding: 6px 10px;
   border-radius: 6px;
   font-family: "Consolas", "Monaco", monospace;
@@ -161,10 +194,47 @@ const openConfigFolder = async () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .version-text {
   font-size: 14px;
   color: var(--text-secondary);
+}
+
+/* 主题切换样式 */
+.theme-switcher {
+  display: flex;
+  gap: 8px;
+}
+
+.theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.theme-btn.active {
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.theme-btn.active:hover {
+  background: var(--primary-light);
 }
 </style>
