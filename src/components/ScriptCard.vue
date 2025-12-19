@@ -31,13 +31,41 @@
     <!-- 命令预览 -->
     <div class="command-preview">
       <el-icon :size="12"><Document /></el-icon>
-      <code>{{ script.command }}</code>
+      <code>{{ commandPreviewText }}</code>
     </div>
 
-    <!-- 启动按钮 -->
+    <!-- 启动按钮 - 根据命令数量显示不同交互 -->
+    <el-dropdown
+      v-if="commandList.length > 1"
+      trigger="click"
+      @command="handleCommandSelect"
+      class="execute-dropdown"
+    >
+      <el-button type="primary" :loading="executing" class="execute-btn">
+        <el-icon><CaretRight /></el-icon>
+        <span>启动</span>
+        <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+      </el-button>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item
+            v-for="cmd in commandList"
+            :key="cmd.id"
+            :command="cmd.id"
+          >
+            <div class="dropdown-cmd-item">
+              <span class="cmd-name">{{ cmd.name }}</span>
+              <code class="cmd-code">{{ cmd.command }}</code>
+            </div>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+
     <el-button
+      v-else
       type="primary"
-      @click.stop="handleExecute"
+      @click.stop="handleExecuteSingle"
       :loading="executing"
       class="execute-btn"
     >
@@ -48,13 +76,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import {
   FolderOpened,
   Document,
   CaretRight,
   Edit,
   Delete,
+  ArrowDown,
 } from "@element-plus/icons-vue";
 import type { ScriptConfig } from "../types/script";
 
@@ -62,20 +91,57 @@ interface Props {
   script: ScriptConfig;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  execute: [];
+  execute: [commandId: string];
   edit: [];
   delete: [];
 }>();
 
 const executing = ref(false);
 
-const handleExecute = async () => {
+// 获取命令列表（兼容旧数据）
+const commandList = computed(() => {
+  // 如果有 commands 数组，直接使用
+  if (props.script.commands && props.script.commands.length > 0) {
+    return props.script.commands;
+  }
+  // 兼容旧数据：如果有 command 字段，转换为数组格式
+  const oldScript = props.script as any;
+  if (oldScript.command) {
+    return [{ id: "legacy", name: "默认", command: oldScript.command }];
+  }
+  return [];
+});
+
+// 命令预览文字：显示第一个命令或命令数量
+const commandPreviewText = computed(() => {
+  const cmds = commandList.value;
+  if (cmds.length === 0) return "未配置命令";
+  if (cmds.length === 1) return cmds[0].command;
+  return `${cmds[0].command} (+${cmds.length - 1})`;
+});
+
+// 单个命令时直接执行
+const handleExecuteSingle = async () => {
+  const cmd = commandList.value[0];
+  if (!cmd) return;
   executing.value = true;
   try {
-    emit("execute");
+    emit("execute", cmd.id);
+  } finally {
+    setTimeout(() => {
+      executing.value = false;
+    }, 1000);
+  }
+};
+
+// 多个命令时通过下拉选择
+const handleCommandSelect = async (commandId: string) => {
+  executing.value = true;
+  try {
+    emit("execute", commandId);
   } finally {
     setTimeout(() => {
       executing.value = false;
@@ -106,6 +172,7 @@ const handleDelete = () => {
   align-items: center;
   text-align: center;
   min-height: 220px;
+  overflow: hidden;
 }
 
 .script-card::before {
@@ -264,5 +331,72 @@ const handleDelete = () => {
   font-size: 14px;
   font-weight: 500;
   border-radius: 10px;
+}
+
+/* 下拉菜单容器 */
+.execute-dropdown {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.execute-dropdown .execute-btn {
+  margin-top: 0;
+}
+
+/* 下拉菜单项样式 */
+.dropdown-cmd-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.dropdown-cmd-item .cmd-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.dropdown-cmd-item .cmd-code {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: "Consolas", "Monaco", monospace;
+}
+</style>
+
+<!-- 全局样式覆盖下拉菜单 -->
+<style>
+.el-dropdown-menu {
+  background: #1e1e2e !important;
+  border: 1px solid #3a3a4a !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+.el-dropdown-menu__item {
+  color: #e0e0e0 !important;
+}
+
+.el-dropdown-menu__item:hover {
+  background: #2a2a3e !important;
+  color: #fff !important;
+}
+
+.el-dropdown-menu .dropdown-cmd-item .cmd-name {
+  color: #f0f0f0;
+}
+
+.el-dropdown-menu .dropdown-cmd-item .cmd-code {
+  color: #9ca3af;
+}
+
+.el-popper.is-light {
+  background: #1e1e2e !important;
+  border: 1px solid #3a3a4a !important;
+}
+
+.el-popper.is-light .el-popper__arrow::before {
+  background: #1e1e2e !important;
+  border-color: #3a3a4a !important;
 }
 </style>

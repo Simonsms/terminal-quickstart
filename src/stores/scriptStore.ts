@@ -1,12 +1,17 @@
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import type { ScriptConfig, AppConfig } from '../types/script';
-import { invoke } from '@tauri-apps/api/core';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import type {
+  ScriptConfig,
+  AppConfig,
+  CommandConfig,
+  ScriptFormData,
+} from "../types/script";
+import { invoke } from "@tauri-apps/api/core";
 
 /**
  * 脚本管理 Store
  */
-export const useScriptStore = defineStore('script', () => {
+export const useScriptStore = defineStore("script", () => {
   // 状态
   const scripts = ref<ScriptConfig[]>([]);
   const currentEditingScript = ref<ScriptConfig | null>(null);
@@ -28,10 +33,10 @@ export const useScriptStore = defineStore('script', () => {
   const loadConfig = async () => {
     try {
       isLoading.value = true;
-      const config = await invoke<AppConfig>('load_config');
+      const config = await invoke<AppConfig>("load_config");
       scripts.value = config.scripts || [];
     } catch (error) {
-      console.error('加载配置失败:', error);
+      console.error("加载配置失败:", error);
       scripts.value = [];
     } finally {
       isLoading.value = false;
@@ -44,24 +49,41 @@ export const useScriptStore = defineStore('script', () => {
   const saveConfig = async () => {
     try {
       const config: AppConfig = {
-        theme: 'dark',
+        theme: "dark",
         scripts: scripts.value,
-        version: '1.0.0',
+        version: "1.0.0",
       };
-      await invoke('save_config', { config });
+      await invoke("save_config", { config });
     } catch (error) {
-      console.error('保存配置失败:', error);
+      console.error("保存配置失败:", error);
       throw error;
     }
   };
 
   /**
+   * 生成命令ID
+   */
+  const generateCommandId = (): string => {
+    return `cmd-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+  };
+
+  /**
    * 添加脚本
    */
-  const addScript = async (scriptData: Omit<ScriptConfig, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const addScript = async (scriptData: ScriptFormData) => {
     const now = Date.now();
+    // 给每个命令生成ID
+    const commandsWithId: CommandConfig[] = scriptData.commands.map((cmd) => ({
+      id: cmd.id || generateCommandId(),
+      name: cmd.name,
+      command: cmd.command,
+    }));
     const newScript: ScriptConfig = {
-      ...scriptData,
+      name: scriptData.name,
+      workingDir: scriptData.workingDir,
+      description: scriptData.description,
+      icon: scriptData.icon,
+      commands: commandsWithId,
       id: generateId(),
       createdAt: now,
       updatedAt: now,
@@ -74,14 +96,24 @@ export const useScriptStore = defineStore('script', () => {
   /**
    * 更新脚本
    */
-  const updateScript = async (id: string, updates: Partial<ScriptConfig>) => {
-    const index = scripts.value.findIndex(s => s.id === id);
+  const updateScript = async (id: string, updates: ScriptFormData) => {
+    const index = scripts.value.findIndex((s) => s.id === id);
     if (index === -1) {
-      throw new Error('脚本不存在');
+      throw new Error("脚本不存在");
     }
+    // 给每个命令确保有ID
+    const commandsWithId: CommandConfig[] = updates.commands.map((cmd) => ({
+      id: cmd.id || generateCommandId(),
+      name: cmd.name,
+      command: cmd.command,
+    }));
     scripts.value[index] = {
       ...scripts.value[index],
-      ...updates,
+      name: updates.name,
+      workingDir: updates.workingDir,
+      description: updates.description,
+      icon: updates.icon,
+      commands: commandsWithId,
       updatedAt: Date.now(),
     };
     await saveConfig();
@@ -91,9 +123,9 @@ export const useScriptStore = defineStore('script', () => {
    * 删除脚本
    */
   const deleteScript = async (id: string) => {
-    const index = scripts.value.findIndex(s => s.id === id);
+    const index = scripts.value.findIndex((s) => s.id === id);
     if (index === -1) {
-      throw new Error('脚本不存在');
+      throw new Error("脚本不存在");
     }
     scripts.value.splice(index, 1);
     await saveConfig();
@@ -103,7 +135,7 @@ export const useScriptStore = defineStore('script', () => {
    * 获取脚本详情
    */
   const getScript = (id: string): ScriptConfig | undefined => {
-    return scripts.value.find(s => s.id === id);
+    return scripts.value.find((s) => s.id === id);
   };
 
   /**
@@ -114,20 +146,24 @@ export const useScriptStore = defineStore('script', () => {
   };
 
   /**
-   * 执行脚本
+   * 执行脚本（传入脚本ID和命令ID）
    */
-  const executeScript = async (id: string) => {
-    const script = getScript(id);
+  const executeScript = async (scriptId: string, commandId: string) => {
+    const script = getScript(scriptId);
     if (!script) {
-      throw new Error('脚本不存在');
+      throw new Error("脚本不存在");
+    }
+    const cmd = script.commands.find((c) => c.id === commandId);
+    if (!cmd) {
+      throw new Error("命令不存在");
     }
     try {
-      await invoke('execute_script', {
+      await invoke("execute_script", {
         workingDir: script.workingDir,
-        command: script.command,
+        command: cmd.command,
       });
     } catch (error) {
-      console.error('执行脚本失败:', error);
+      console.error("执行脚本失败:", error);
       throw error;
     }
   };

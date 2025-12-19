@@ -36,6 +36,23 @@
       </div>
 
       <div class="settings-section">
+        <h3 class="section-title">启动</h3>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">开机自启动</span>
+            <p class="setting-description">系统启动时自动运行应用程序</p>
+          </div>
+          <div class="setting-value">
+            <el-switch
+              v-model="autostart"
+              :loading="autostartLoading"
+              @change="handleAutostartChange"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
         <h3 class="section-title">数据存储</h3>
         <div class="setting-item">
           <div class="setting-info">
@@ -78,6 +95,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import { ElMessage } from "element-plus";
 import { FolderOpened, Sunny, Moon } from "@element-plus/icons-vue";
 import { useThemeStore } from "../stores/themeStore";
 import { storeToRefs } from "pinia";
@@ -87,6 +105,8 @@ const { theme } = storeToRefs(themeStore);
 const { setTheme } = themeStore;
 
 const configPath = ref<string>("");
+const autostart = ref(false);
+const autostartLoading = ref(false);
 
 onMounted(async () => {
   try {
@@ -95,7 +115,29 @@ onMounted(async () => {
     console.error("获取配置路径失败:", error);
     configPath.value = "获取失败";
   }
+
+  // 获取开机自启动状态
+  try {
+    autostart.value = await invoke<boolean>("get_autostart_status");
+  } catch (error) {
+    console.error("获取自启动状态失败:", error);
+  }
 });
+
+const handleAutostartChange = async (enabled: boolean) => {
+  autostartLoading.value = true;
+  try {
+    await invoke("set_autostart", { enabled });
+    ElMessage.success(enabled ? "已开启开机自启动" : "已关闭开机自启动");
+  } catch (error) {
+    console.error("设置自启动失败:", error);
+    ElMessage.error("设置失败");
+    // 恢复原状态
+    autostart.value = !enabled;
+  } finally {
+    autostartLoading.value = false;
+  }
+};
 
 const openConfigFolder = async () => {
   try {

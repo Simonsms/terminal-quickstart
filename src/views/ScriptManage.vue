@@ -25,7 +25,7 @@
         v-for="script in scriptStore.scripts"
         :key="script.id"
         :script="script"
-        @execute="handleExecute(script.id)"
+        @execute="(commandId: string) => handleExecute(script.id, commandId)"
         @edit="handleEdit(script)"
         @delete="handleDelete(script)"
       />
@@ -82,9 +82,9 @@ const handleSubmit = async (data: ScriptFormData) => {
   }
 };
 
-const handleExecute = async (id: string) => {
+const handleExecute = async (scriptId: string, commandId: string) => {
   try {
-    await scriptStore.executeScript(id);
+    await scriptStore.executeScript(scriptId, commandId);
     ElMessage.success("脚本已启动");
   } catch (error) {
     console.error("执行失败:", error);
