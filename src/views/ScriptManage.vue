@@ -1,30 +1,34 @@
 <template>
   <div class="script-manage">
+    <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <h2 class="page-title">脚本管理</h2>
-        <span class="script-count"
-          >共 {{ scriptStore.scriptCount }} 个脚本</span
-        >
+        <h2 class="page-title">Scripts</h2>
+        <span class="script-count">{{ scriptStore.scriptCount }} total</span>
       </div>
       <el-button type="primary" @click="handleAdd" :icon="Plus">
-        新建脚本
+        New Script
       </el-button>
     </div>
 
+    <!-- 空状态 -->
     <div v-if="scriptStore.scripts.length === 0" class="empty-state">
-      <el-icon :size="80" color="#4a4a4a">
-        <FolderOpened />
-      </el-icon>
-      <p class="empty-text">还没有添加任何脚本</p>
-      <p class="empty-hint">点击右上角「新建脚本」开始添加</p>
+      <div class="empty-icon">
+        <el-icon :size="64">
+          <FolderOpened />
+        </el-icon>
+      </div>
+      <p class="empty-text">No scripts yet</p>
+      <p class="empty-hint">Click "New Script" to create your first script</p>
     </div>
 
+    <!-- 脚本网格 -->
     <div v-else class="script-grid">
       <ScriptCard
-        v-for="script in scriptStore.scripts"
+        v-for="(script, index) in scriptStore.scripts"
         :key="script.id"
         :script="script"
+        :style="{ 'animation-delay': `${index * 0.05}s` }"
         @execute="(commandId: string) => handleExecute(script.id, commandId)"
         @edit="handleEdit(script)"
         @delete="handleDelete(script)"
@@ -70,10 +74,8 @@ const handleEdit = (script: ScriptConfig) => {
 const handleSubmit = async (data: ScriptFormData) => {
   try {
     if (editingScript.value) {
-      // 更新
       await scriptStore.updateScript(editingScript.value.id, data);
     } else {
-      // 新建
       await scriptStore.addScript(data);
     }
   } catch (error) {
@@ -85,31 +87,31 @@ const handleSubmit = async (data: ScriptFormData) => {
 const handleExecute = async (scriptId: string, commandId: string) => {
   try {
     await scriptStore.executeScript(scriptId, commandId);
-    ElMessage.success("脚本已启动");
+    ElMessage.success("Script executed successfully");
   } catch (error) {
     console.error("执行失败:", error);
-    ElMessage.error("启动失败，请检查配置");
+    ElMessage.error("Execution failed");
   }
 };
 
 const handleDelete = async (script: ScriptConfig) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除脚本「${script.name}」吗？`,
-      "删除确认",
+      `Delete script "${script.name}"?`,
+      "Confirm Delete",
       {
-        confirmButtonText: "删除",
-        cancelButtonText: "取消",
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
         type: "warning",
         confirmButtonClass: "el-button--danger",
       }
     );
     await scriptStore.deleteScript(script.id);
-    ElMessage.success("删除成功");
+    ElMessage.success("Script deleted");
   } catch (error) {
     if (error !== "cancel") {
       console.error("删除失败:", error);
-      ElMessage.error("删除失败");
+      ElMessage.error("Delete failed");
     }
   }
 };
@@ -123,14 +125,38 @@ const handleDelete = async (script: ScriptConfig) => {
   padding: 32px;
   overflow: hidden;
   position: relative;
+  background: var(--tokyo-bg-dark);
+}
+
+/* 背景装饰 */
+.script-manage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle at center,
+    rgba(122, 162, 247, 0.05) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.script-manage > * {
+  position: relative;
   z-index: 1;
 }
 
+/* 页面头部 */
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
+  animation: fadeIn 0.5s ease forwards;
 }
 
 .header-left {
@@ -140,21 +166,24 @@ const handleDelete = async (script: ScriptConfig) => {
 }
 
 .page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-size: 32px;
+  font-weight: var(--font-weight-bold);
+  color: var(--tokyo-text-bright);
   margin: 0;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.02em;
 }
 
 .script-count {
   font-size: 14px;
-  color: var(--text-muted);
-  background: var(--bg-hover);
-  padding: 4px 12px;
+  font-weight: var(--font-weight-medium);
+  color: var(--tokyo-text-muted);
+  background: var(--tokyo-bg-card);
+  padding: 6px 14px;
   border-radius: 20px;
+  border: 1px solid var(--tokyo-border);
 }
 
+/* 空状态 */
 .empty-state {
   flex: 1;
   display: flex;
@@ -162,80 +191,55 @@ const handleDelete = async (script: ScriptConfig) => {
   align-items: center;
   justify-content: center;
   gap: 20px;
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards;
+  animation: fadeIn 0.6s ease forwards;
 }
 
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
+.empty-icon {
+  width: 100px;
+  height: 100px;
+  background: var(--tokyo-bg-card);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tokyo-text-muted);
+  border: 1px solid var(--tokyo-border);
 }
 
 .empty-text {
   font-size: 18px;
-  color: var(--text-secondary);
+  color: var(--tokyo-text-dim);
   margin: 0;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .empty-hint {
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--tokyo-text-muted);
   margin: 0;
 }
 
+/* 脚本网格 */
 .script-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
   overflow-y: auto;
-  padding-bottom: 16px;
-  padding-right: 8px;
+  padding-bottom: 20px;
+  padding-right: 12px;
   align-content: start;
 }
 
-/* 卡片入场动画 */
-.script-grid > * {
-  animation: scaleIn 0.4s ease forwards;
-  opacity: 0;
-}
-
-@keyframes scaleIn {
+/* 通用动画 */
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
   }
-}
-
-/* 为每个卡片添加延迟 */
-.script-grid > *:nth-child(1) {
-  animation-delay: 0.05s;
-}
-.script-grid > *:nth-child(2) {
-  animation-delay: 0.1s;
-}
-.script-grid > *:nth-child(3) {
-  animation-delay: 0.15s;
-}
-.script-grid > *:nth-child(4) {
-  animation-delay: 0.2s;
-}
-.script-grid > *:nth-child(5) {
-  animation-delay: 0.25s;
-}
-.script-grid > *:nth-child(6) {
-  animation-delay: 0.3s;
-}
-.script-grid > *:nth-child(7) {
-  animation-delay: 0.35s;
-}
-.script-grid > *:nth-child(8) {
-  animation-delay: 0.4s;
 }
 </style>

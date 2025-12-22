@@ -2,70 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   TOKYO NIGHT DESIGN SYSTEM
+   灵感来源: 东京夜景 + Tokyo Night IDE 主题
+   ======================================== */
+
 :root {
-  /* 主色调 */
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
-  --primary-light: rgba(59, 130, 246, 0.15);
-  --primary-glow: rgba(59, 130, 246, 0.4);
+  /* 🌃 Tokyo Night 核心配色 */
+  --tokyo-bg-dark: #1a1b26;        /* 深蓝紫背景 */
+  --tokyo-bg-darker: #16161e;      /* 更深的背景 */
+  --tokyo-bg-card: #24283b;        /* 卡片背景 */
+  --tokyo-bg-hover: #292e42;       /* 悬停背景 */
+  --tokyo-bg-input: #1e202e;       /* 输入框背景 */
 
-  /* 背景色 */
-  --bg-dark: #0f0f12;
-  --bg-card: #18181c;
-  --bg-hover: #1f1f24;
-  --bg-input: #232329;
+  /* 🎨 主题色彩 */
+  --tokyo-blue: #7aa2f7;           /* 青蓝色 - 主色 */
+  --tokyo-blue-bright: #7dcfff;    /* 亮青色 */
+  --tokyo-purple: #bb9af7;         /* 紫色 - 强调色 */
+  --tokyo-orange: #ff9e64;         /* 橙色 */
+  --tokyo-green: #9ece6a;          /* 绿色 */
+  --tokyo-red: #f7768e;            /* 红色 */
+  --tokyo-yellow: #e0af68;         /* 黄色 */
+  --tokyo-magenta: #bb9af7;        /* 品红 */
 
-  /* 边框 */
-  --border-color: #2a2a30;
-  --border-hover: #3a3a42;
+  /* 📝 文字颜色 */
+  --tokyo-text: #c0caf5;           /* 主文字 */
+  --tokyo-text-bright: #c0caf5;    /* 亮文字 */
+  --tokyo-text-dim: #9aa5ce;       /* 次要文字 */
+  --tokyo-text-muted: #565f89;     /* 暗淡文字 */
 
-  /* 文字 */
-  --text-primary: #f0f0f5;
-  --text-secondary: #a0a0aa;
-  --text-muted: #6a6a74;
+  /* 🔲 边框和分隔线 */
+  --tokyo-border: #292e42;
+  --tokyo-border-hover: #414868;
 
-  /* 成功/警告/危险 */
-  --success-color: #22c55e;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
+  /* 💫 光晕效果 */
+  --tokyo-glow-blue: rgba(122, 162, 247, 0.3);
+  --tokyo-glow-purple: rgba(187, 154, 247, 0.3);
+  --tokyo-glow-orange: rgba(255, 158, 100, 0.3);
 
-  /* 高亮色 - 目录和命令 */
-  --highlight-path: #60a5fa;
-  --highlight-command: #a78bfa;
+  /* 🔤 字体家族 - Tokyo Night Stack */
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Fira Code', 'Monaco', 'Consolas', monospace;
+
+  /* 字重 */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
 }
 
-/* 浅色主题 */
-[data-theme="light"] {
-  /* 主色调 */
-  --primary-color: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-light: rgba(37, 99, 235, 0.1);
-  --primary-glow: rgba(37, 99, 235, 0.3);
-
-  /* 背景色 */
-  --bg-dark: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-hover: #f1f5f9;
-  --bg-input: #f1f5f9;
-
-  /* 边框 */
-  --border-color: #e2e8f0;
-  --border-hover: #cbd5e1;
-
-  /* 文字 */
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-
-  /* 成功/警告/危险 */
-  --success-color: #16a34a;
-  --warning-color: #d97706;
-  --danger-color: #dc2626;
-
-  /* 高亮色 - 目录和命令 */
-  --highlight-path: #2563eb;
-  --highlight-command: #7c3aed;
-}
+/* ========================================
+   全局基础样式
+   ======================================== */
 
 * {
   margin: 0;
@@ -74,120 +64,163 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-normal);
+  background: var(--tokyo-bg-dark);
+  color: var(--tokyo-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--bg-dark);
+  overflow: hidden;
 }
 
 #app {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
-/* 全局滚动条样式 */
+/* ========================================
+   滚动条样式
+   ======================================== */
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--tokyo-bg-darker);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 3px;
+  background: var(--tokyo-border-hover);
+  border-radius: 4px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-hover);
+  background: var(--tokyo-blue);
 }
 
-/* Element Plus 暗色主题覆盖 */
+/* ========================================
+   排版样式
+   ======================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-bold);
+  color: var(--tokyo-text-bright);
+  letter-spacing: -0.02em;
+}
+
+code, pre, .code, .command, .path {
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ========================================
+   Element Plus 组件覆盖 - Tokyo Night 主题
+   ======================================== */
+
 .el-dialog {
-  --el-dialog-bg-color: var(--bg-card) !important;
-  --el-dialog-border-radius: 16px !important;
-  border: 1px solid var(--border-color) !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  --el-dialog-bg-color: var(--tokyo-bg-card) !important;
+  --el-dialog-border-radius: 12px !important;
+  background: var(--tokyo-bg-card) !important;
+  border: 1px solid var(--tokyo-border) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+              0 0 0 1px var(--tokyo-border) !important;
 }
 
 .el-dialog__header {
-  border-bottom: 1px solid var(--border-color) !important;
+  background: var(--tokyo-bg-darker);
+  border-bottom: 1px solid var(--tokyo-border) !important;
   padding: 20px 24px !important;
+  border-radius: 12px 12px 0 0;
 }
 
 .el-dialog__title {
-  color: var(--text-primary) !important;
-  font-weight: 600 !important;
+  font-family: var(--font-sans) !important;
+  font-size: 18px !important;
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--tokyo-text-bright) !important;
 }
 
 .el-dialog__body {
   padding: 24px !important;
+  background: var(--tokyo-bg-card);
 }
 
 .el-form-item__label {
-  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+  color: var(--tokyo-text-dim) !important;
+  font-size: 13px !important;
+  font-weight: var(--font-weight-medium) !important;
 }
 
 .el-input__wrapper {
-  background: var(--bg-input) !important;
-  border: 1px solid var(--border-color) !important;
+  background: var(--tokyo-bg-input) !important;
+  border: 1px solid var(--tokyo-border) !important;
   border-radius: 8px !important;
   box-shadow: none !important;
   transition: all 0.2s ease !important;
 }
 
 .el-input__wrapper:hover {
-  border-color: var(--border-hover) !important;
+  border-color: var(--tokyo-border-hover) !important;
 }
 
 .el-input__wrapper.is-focus {
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 3px var(--primary-light) !important;
+  border-color: var(--tokyo-blue) !important;
+  box-shadow: 0 0 0 3px var(--tokyo-glow-blue) !important;
 }
 
 .el-input__inner {
-  color: var(--text-primary) !important;
+  font-family: var(--font-sans) !important;
+  color: var(--tokyo-text-bright) !important;
+  font-size: 14px !important;
 }
 
 .el-input__inner::placeholder {
-  color: var(--text-muted) !important;
+  color: var(--tokyo-text-muted) !important;
 }
 
 .el-textarea__inner {
-  background: var(--bg-input) !important;
-  border: 1px solid var(--border-color) !important;
+  font-family: var(--font-mono) !important;
+  background: var(--tokyo-bg-input) !important;
+  border: 1px solid var(--tokyo-border) !important;
   border-radius: 8px !important;
-  color: var(--text-primary) !important;
+  color: var(--tokyo-text-bright) !important;
   box-shadow: none !important;
 }
 
 .el-textarea__inner:hover {
-  border-color: var(--border-hover) !important;
+  border-color: var(--tokyo-border-hover) !important;
 }
 
 .el-textarea__inner:focus {
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 3px var(--primary-light) !important;
+  border-color: var(--tokyo-blue) !important;
+  box-shadow: 0 0 0 3px var(--tokyo-glow-blue) !important;
 }
 
-.el-button--primary {
-  background: linear-gradient(
-    135deg,
-    var(--primary-color) 0%,
-    #6366f1 100%
-  ) !important;
-  border: none !important;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4) !important;
+.el-button {
+  font-family: var(--font-sans) !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: var(--font-weight-medium) !important;
   transition: all 0.2s ease !important;
 }
 
+.el-button--primary {
+  background: linear-gradient(135deg, var(--tokyo-blue) 0%, var(--tokyo-purple) 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px var(--tokyo-glow-blue) !important;
+}
+
 .el-button--primary:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px var(--tokyo-glow-blue) !important;
 }
 
 .el-button--primary:active {
@@ -195,12 +228,98 @@ body {
 }
 
 .el-message-box {
-  --el-messagebox-title-color: var(--text-primary) !important;
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 16px !important;
+  --el-messagebox-title-color: var(--tokyo-text-bright) !important;
+  background: var(--tokyo-bg-card) !important;
+  border: 1px solid var(--tokyo-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
 }
 
 .el-message-box__content {
-  color: var(--text-secondary) !important;
+  font-family: var(--font-sans) !important;
+  color: var(--tokyo-text-dim) !important;
+}
+
+/* ========================================
+   Dropdown 下拉菜单样式
+   ======================================== */
+
+.el-dropdown-menu {
+  background: var(--tokyo-bg-card) !important;
+  border: 1px solid var(--tokyo-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  padding: 6px !important;
+}
+
+.el-dropdown-menu__item {
+  font-family: var(--font-sans) !important;
+  color: var(--tokyo-text) !important;
+  border-radius: 6px !important;
+  padding: 10px 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.el-dropdown-menu__item:hover {
+  background: var(--tokyo-bg-hover) !important;
+  color: var(--tokyo-text-bright) !important;
+}
+
+.el-popper.is-light {
+  background: var(--tokyo-bg-card) !important;
+  border: 1px solid var(--tokyo-border) !important;
+}
+
+.el-popper.is-light .el-popper__arrow::before {
+  background: var(--tokyo-bg-card) !important;
+  border: 1px solid var(--tokyo-border) !important;
+}
+
+/* ========================================
+   动画效果
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ========================================
+   工具类
+   ======================================== */
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
 }

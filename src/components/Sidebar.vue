@@ -1,15 +1,20 @@
 <template>
   <div class="sidebar">
+    <!-- Logo 和标题 -->
     <div class="sidebar-header">
-      <div class="app-logo">
-        <el-icon :size="32" color="#409EFF">
-          <Monitor />
-        </el-icon>
+      <div class="logo-wrapper">
+        <div class="logo-icon">
+          <el-icon :size="32">
+            <Monitor />
+          </el-icon>
+        </div>
+        <div class="logo-glow"></div>
       </div>
       <h1 class="app-title">Terminal Quick</h1>
-      <p class="app-subtitle">终端快捷启动</p>
+      <p class="app-subtitle">Script Launcher</p>
     </div>
 
+    <!-- 导航菜单 -->
     <nav class="nav-menu">
       <div
         v-for="item in menuItems"
@@ -21,8 +26,14 @@
           <component :is="item.icon" />
         </el-icon>
         <span class="nav-label">{{ item.label }}</span>
+        <div v-if="activeMenu === item.id" class="active-indicator"></div>
       </div>
     </nav>
+
+    <!-- 底部装饰 -->
+    <div class="sidebar-footer">
+      <div class="footer-gradient"></div>
+    </div>
   </div>
 </template>
 
@@ -37,8 +48,8 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: "scripts", label: "脚本管理", icon: Monitor },
-  { id: "settings", label: "设置", icon: Setting },
+  { id: "scripts", label: "Scripts", icon: Monitor },
+  { id: "settings", label: "Settings", icon: Setting },
 ];
 
 const activeMenu = ref("scripts");
@@ -55,96 +66,138 @@ const handleMenuClick = (menuId: string) => {
 
 <style scoped>
 .sidebar {
-  width: 260px;
+  width: 280px;
   height: 100vh;
-  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
-  border-right: 1px solid var(--border-color);
+  background: var(--tokyo-bg-darker);
+  border-right: 1px solid var(--tokyo-border);
   display: flex;
   flex-direction: column;
-  padding: 28px 0;
   position: relative;
+  overflow: hidden;
 }
 
-/* 微光效果 */
+/* 侧边栏整体渐变背景 */
 .sidebar::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
   background: radial-gradient(
-    ellipse at 50% 0%,
-    var(--primary-light) 0%,
-    transparent 70%
+    ellipse at 30% 20%,
+    rgba(122, 162, 247, 0.08) 0%,
+    transparent 50%
   );
   pointer-events: none;
+  z-index: 0;
 }
 
-.sidebar-header {
-  padding: 0 24px;
-  margin-bottom: 40px;
+.sidebar > * {
   position: relative;
   z-index: 1;
 }
 
-.app-logo {
+/* 头部区域 */
+.sidebar-header {
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid var(--tokyo-border);
+}
+
+.logo-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.logo-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--tokyo-blue) 0%, var(--tokyo-purple) 100%);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(
-    135deg,
-    var(--primary-light) 0%,
-    var(--primary-light) 100%
-  );
-  border: 1px solid var(--primary-color);
-  border-radius: 14px;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 32px var(--primary-glow);
+  color: #ffffff;
+  box-shadow: 0 8px 24px var(--tokyo-glow-blue);
+  position: relative;
+  z-index: 2;
   animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
-  0%,
-  100% {
+  0%, 100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
+  }
+}
+
+.logo-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(
+    circle,
+    var(--tokyo-glow-blue) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  z-index: 1;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.1);
   }
 }
 
 .app-title {
   font-size: 22px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-weight: var(--font-weight-bold);
+  color: var(--tokyo-text-bright);
   margin-bottom: 6px;
-  letter-spacing: -0.5px;
+  text-align: center;
+  letter-spacing: -0.01em;
 }
 
 .app-subtitle {
   font-size: 13px;
-  color: var(--text-muted);
-  font-weight: 400;
+  color: var(--tokyo-text-muted);
+  font-weight: var(--font-weight-normal);
+  text-align: center;
 }
 
+/* 导航菜单 */
 .nav-menu {
   flex: 1;
-  padding: 0 16px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 18px;
-  margin-bottom: 6px;
-  border-radius: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  color: var(--text-secondary);
+  color: var(--tokyo-text-dim);
   position: relative;
   overflow: hidden;
 }
@@ -153,37 +206,65 @@ const handleMenuClick = (menuId: string) => {
   content: "";
   position: absolute;
   left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
   width: 3px;
-  height: 0;
-  background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+  background: linear-gradient(180deg, var(--tokyo-blue) 0%, var(--tokyo-purple) 100%);
+  transform: scaleY(0);
+  transition: transform 0.25s ease;
   border-radius: 0 2px 2px 0;
-  transition: height 0.25s ease;
 }
 
 .nav-item:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
+  background: var(--tokyo-bg-card);
+  color: var(--tokyo-text-bright);
 }
 
 .nav-item:hover::before {
-  height: 20px;
+  transform: scaleY(0.6);
 }
 
 .nav-item.active {
-  background: var(--primary-light);
-  color: var(--primary-color);
-  box-shadow: 0 4px 20px var(--primary-glow);
+  background: var(--tokyo-bg-card);
+  color: var(--tokyo-blue);
+  box-shadow: 0 4px 12px rgba(122, 162, 247, 0.1);
 }
 
 .nav-item.active::before {
-  height: 24px;
+  transform: scaleY(1);
 }
 
 .nav-label {
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+  flex: 1;
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+}
+
+.active-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--tokyo-blue) 0%, var(--tokyo-purple) 100%);
+  box-shadow: 0 0 8px var(--tokyo-glow-blue);
+}
+
+/* 底部装饰 */
+.sidebar-footer {
+  position: relative;
+  height: 100px;
+  overflow: hidden;
+}
+
+.footer-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(
+    to top,
+    rgba(122, 162, 247, 0.05) 0%,
+    transparent 100%
+  );
 }
 </style>

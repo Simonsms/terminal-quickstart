@@ -1,40 +1,46 @@
 <template>
   <div class="script-card">
-    <!-- 顶部操作栏 -->
+    <!-- 操作按钮 -->
     <div class="card-actions">
-      <el-button size="small" text @click.stop="handleEdit">
+      <el-button size="small" text @click.stop="handleEdit" class="action-btn">
         <el-icon><Edit /></el-icon>
       </el-button>
-      <el-button size="small" text type="danger" @click.stop="handleDelete">
+      <el-button size="small" text type="danger" @click.stop="handleDelete" class="action-btn">
         <el-icon><Delete /></el-icon>
       </el-button>
     </div>
 
-    <!-- 图标 -->
-    <div class="card-icon">
-      <el-icon :size="32" color="#409EFF">
-        <FolderOpened />
-      </el-icon>
+    <!-- 卡片头部 -->
+    <div class="card-header">
+      <div class="icon-wrapper">
+        <el-icon :size="28">
+          <FolderOpened />
+        </el-icon>
+      </div>
+      <h3 class="script-name">{{ script.name }}</h3>
     </div>
 
-    <!-- 标题 -->
-    <h3 class="script-name">{{ script.name }}</h3>
+    <!-- 卡片内容 -->
+    <div class="card-body">
+      <!-- 描述 -->
+      <p v-if="script.description" class="script-description">
+        {{ script.description }}
+      </p>
 
-    <!-- 描述 - 放在标题下方 -->
-    <p v-if="script.description" class="script-description">
-      {{ script.description }}
-    </p>
+      <!-- 工作目录 -->
+      <div class="info-row">
+        <span class="info-label">Path</span>
+        <code class="info-value path">{{ script.workingDir }}</code>
+      </div>
 
-    <!-- 目录路径 -->
-    <p class="script-dir">{{ script.workingDir }}</p>
-
-    <!-- 命令预览 -->
-    <div class="command-preview">
-      <el-icon :size="12"><Document /></el-icon>
-      <code>{{ commandPreviewText }}</code>
+      <!-- 命令预览 -->
+      <div class="info-row">
+        <span class="info-label">Command</span>
+        <code class="info-value command">{{ commandPreviewText }}</code>
+      </div>
     </div>
 
-    <!-- 启动按钮 - 根据命令数量显示不同交互 -->
+    <!-- 启动按钮 -->
     <el-dropdown
       v-if="commandList.length > 1"
       trigger="click"
@@ -43,7 +49,7 @@
     >
       <el-button type="primary" :loading="executing" class="execute-btn">
         <el-icon><CaretRight /></el-icon>
-        <span>启动</span>
+        <span>Execute</span>
         <el-icon class="el-icon--right"><ArrowDown /></el-icon>
       </el-button>
       <template #dropdown>
@@ -70,7 +76,7 @@
       class="execute-btn"
     >
       <el-icon><CaretRight /></el-icon>
-      <span>启动</span>
+      <span>Execute</span>
     </el-button>
   </div>
 </template>
@@ -79,7 +85,6 @@
 import { ref, computed } from "vue";
 import {
   FolderOpened,
-  Document,
   CaretRight,
   Edit,
   Delete,
@@ -103,22 +108,20 @@ const executing = ref(false);
 
 // 获取命令列表（兼容旧数据）
 const commandList = computed(() => {
-  // 如果有 commands 数组，直接使用
   if (props.script.commands && props.script.commands.length > 0) {
     return props.script.commands;
   }
-  // 兼容旧数据：如果有 command 字段，转换为数组格式
   const oldScript = props.script as any;
   if (oldScript.command) {
-    return [{ id: "legacy", name: "默认", command: oldScript.command }];
+    return [{ id: "legacy", name: "Default", command: oldScript.command }];
   }
   return [];
 });
 
-// 命令预览文字：显示第一个命令或命令数量
+// 命令预览文字
 const commandPreviewText = computed(() => {
   const cmds = commandList.value;
-  if (cmds.length === 0) return "未配置命令";
+  if (cmds.length === 0) return "No command";
   if (cmds.length === 1) return cmds[0].command;
   return `${cmds[0].command} (+${cmds.length - 1})`;
 });
@@ -160,19 +163,17 @@ const handleDelete = () => {
 
 <style scoped>
 .script-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
+  background: var(--tokyo-bg-card);
+  border: 1px solid var(--tokyo-border);
+  border-radius: 12px;
   padding: 20px;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  min-height: 220px;
-  overflow: hidden;
+  min-height: 300px;
+  height: fit-content;
 }
 
 .script-card::before {
@@ -182,15 +183,15 @@ const handleDelete = () => {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--primary-color) 0%, #6366f1 100%);
-  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, var(--tokyo-blue) 0%, var(--tokyo-purple) 100%);
+  border-radius: 12px 12px 0 0;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.3s ease;
 }
 
 .script-card:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 12px 40px var(--primary-glow);
+  border-color: var(--tokyo-blue);
+  box-shadow: 0 8px 30px rgba(122, 162, 247, 0.15);
   transform: translateY(-4px);
 }
 
@@ -198,205 +199,193 @@ const handleDelete = () => {
   opacity: 1;
 }
 
-/* 操作按钮 - 右上角 */
+/* 操作按钮 */
 .card-actions {
   position: absolute;
   top: 12px;
   right: 12px;
   display: flex;
-  gap: 4px;
+  gap: 6px;
   opacity: 0;
   transition: opacity 0.3s ease;
+  z-index: 10;
 }
 
 .script-card:hover .card-actions {
   opacity: 1;
 }
 
-.card-actions :deep(.el-button) {
-  width: 28px;
-  height: 28px;
+.action-btn :deep(.el-button) {
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  background: var(--bg-hover);
-  border: 1px solid transparent;
+  background: var(--tokyo-bg-darker);
+  border: 1px solid var(--tokyo-border);
+  color: var(--tokyo-text-dim);
   transition: all 0.2s ease;
 }
 
-.card-actions :deep(.el-button:hover) {
-  background: var(--bg-input);
-  border-color: var(--border-hover);
+.action-btn :deep(.el-button:hover) {
+  background: var(--tokyo-bg-hover);
+  border-color: var(--tokyo-blue);
+  color: var(--tokyo-blue);
 }
 
-.card-actions :deep(.el-button--danger:hover) {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.3);
+.action-btn.el-button--text.is-type-danger :deep(.el-button:hover) {
+  border-color: var(--tokyo-red);
+  color: var(--tokyo-red);
 }
 
-/* 图标 */
-.card-icon {
-  width: 56px;
-  height: 56px;
-  background: var(--primary-light);
-  border: 1px solid var(--primary-color);
-  border-radius: 14px;
+/* 卡片头部 */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.icon-wrapper {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--tokyo-blue) 0%, var(--tokyo-purple) 100%);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px var(--tokyo-glow-blue);
   transition: all 0.3s ease;
 }
 
-.script-card:hover .card-icon {
+.script-card:hover .icon-wrapper {
   transform: scale(1.05);
-  box-shadow: 0 8px 24px var(--primary-glow);
+  box-shadow: 0 6px 16px var(--tokyo-glow-blue);
 }
 
-/* 标题 */
 .script-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 4px 0;
-  width: 100%;
+  font-size: 18px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--tokyo-text-bright);
+  margin: 0;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  letter-spacing: -0.2px;
 }
 
-/* 描述 - 在标题下方 */
+/* 卡片内容 */
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .script-description {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.4;
-  margin: 0 0 12px 0;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: var(--font-weight-normal);
+  color: var(--tokyo-text-dim);
+  line-height: 1.6;
+  margin: 0 0 8px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  min-height: 34px;
-}
-
-/* 目录路径 */
-.script-dir {
-  font-size: 12px;
-  color: var(--highlight-path);
-  width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: "Consolas", "Monaco", monospace;
-  font-weight: 500;
-  margin: 0 0 10px 0;
+  max-height: 42px;
 }
 
-/* 命令预览 */
-.command-preview {
+.info-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   gap: 6px;
-  padding: 8px 12px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  width: 100%;
-  margin-bottom: 0;
-  margin-top: auto;
 }
 
-.command-preview code {
+.info-label {
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--tokyo-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-value {
+  font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--highlight-command);
-  font-family: "Consolas", "Monaco", "Fira Code", monospace;
+  color: var(--tokyo-text);
+  background: var(--tokyo-bg-darker);
+  padding: 8px 10px;
+  border-radius: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 500;
+  border: 1px solid var(--tokyo-border);
 }
 
-.command-preview .el-icon {
-  color: var(--text-muted);
-  flex-shrink: 0;
+.info-value.path {
+  color: var(--tokyo-blue-bright);
+}
+
+.info-value.command {
+  color: var(--tokyo-orange);
 }
 
 /* 启动按钮 */
 .execute-btn {
   width: 100%;
-  margin-top: 12px;
-  padding: 10px 20px;
+  margin-top: auto;
+  padding: 12px 20px;
   height: auto;
   font-size: 14px;
-  font-weight: 500;
-  border-radius: 10px;
+  font-weight: var(--font-weight-medium);
+  flex-shrink: 0;
 }
 
-/* 下拉菜单容器 */
 .execute-dropdown {
   width: 100%;
-  margin-top: 12px;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .execute-dropdown .execute-btn {
   margin-top: 0;
 }
 
-/* 下拉菜单项样式 */
+/* 下拉菜单项 */
 .dropdown-cmd-item {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
-  padding: 4px 0;
+  padding: 2px 0;
 }
 
 .dropdown-cmd-item .cmd-name {
   font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
+  font-weight: var(--font-weight-medium);
+  color: var(--tokyo-text-bright);
 }
 
 .dropdown-cmd-item .cmd-code {
+  font-family: var(--font-mono);
   font-size: 12px;
-  color: #6b7280;
-  font-family: "Consolas", "Monaco", monospace;
-}
-</style>
-
-<!-- 全局样式覆盖下拉菜单 -->
-<style>
-.el-dropdown-menu {
-  background: #1e1e2e !important;
-  border: 1px solid #3a3a4a !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  color: var(--tokyo-text-dim);
 }
 
-.el-dropdown-menu__item {
-  color: #e0e0e0 !important;
+/* 卡片入场动画 */
+.script-card {
+  animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
 }
 
-.el-dropdown-menu__item:hover {
-  background: #2a2a3e !important;
-  color: #fff !important;
-}
-
-.el-dropdown-menu .dropdown-cmd-item .cmd-name {
-  color: #f0f0f0;
-}
-
-.el-dropdown-menu .dropdown-cmd-item .cmd-code {
-  color: #9ca3af;
-}
-
-.el-popper.is-light {
-  background: #1e1e2e !important;
-  border: 1px solid #3a3a4a !important;
-}
-
-.el-popper.is-light .el-popper__arrow::before {
-  background: #1e1e2e !important;
-  border-color: #3a3a4a !important;
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 </style>
