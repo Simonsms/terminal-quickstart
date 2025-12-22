@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { Monitor, Setting } from "@element-plus/icons-vue";
+import { Monitor, Setting, Document } from "@element-plus/icons-vue";
 
 interface MenuItem {
   id: string;
@@ -49,6 +49,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { id: "scripts", label: "Scripts", icon: Monitor },
+  { id: "snippets", label: "Snippets", icon: Document },
   { id: "settings", label: "Settings", icon: Setting },
 ];
 

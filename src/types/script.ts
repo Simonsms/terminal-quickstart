@@ -40,6 +40,8 @@ export interface AppConfig {
   theme: "light" | "dark";
   /** 脚本列表 */
   scripts: ScriptConfig[];
+  /** 句子片段列表 */
+  snippets: import("./snippet").SnippetConfig[];
   /** 配置版本号 */
   version: string;
 }

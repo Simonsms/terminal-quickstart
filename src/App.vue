@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import Sidebar from "./components/Sidebar.vue";
 import ScriptManage from "./views/ScriptManage.vue";
+import SnippetManage from "./views/SnippetManage.vue";
 import SettingsView from "./views/SettingsView.vue";
 
 const currentView = ref("scripts");
@@ -16,6 +17,7 @@ const handleMenuChange = (menuId: string) => {
     <Sidebar @menu-change="handleMenuChange" />
     <main class="main-content">
       <ScriptManage v-if="currentView === 'scripts'" />
+      <SnippetManage v-else-if="currentView === 'snippets'" />
       <SettingsView v-else-if="currentView === 'settings'" />
       <div v-else class="coming-soon">
         <h2>功能开发中...</h2>

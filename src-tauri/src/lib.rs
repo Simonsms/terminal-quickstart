@@ -32,10 +32,27 @@ struct ScriptConfig {
     updated_at: i64,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct SnippetConfig {
+    id: String,
+    title: String,
+    content: String,
+    category: Option<String>,
+    description: Option<String>,
+    #[serde(rename = "createdAt")]
+    created_at: i64,
+    #[serde(rename = "updatedAt")]
+    updated_at: i64,
+    #[serde(rename = "usageCount")]
+    usage_count: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 struct AppConfig {
     theme: String,
     scripts: Vec<ScriptConfig>,
+    #[serde(default)]
+    snippets: Vec<SnippetConfig>,
     version: String,
 }
 
@@ -118,6 +135,7 @@ fn load_config(app: tauri::AppHandle) -> Result<AppConfig, String> {
         return Ok(AppConfig {
             theme: "dark".to_string(),
             scripts: vec![],
+            snippets: vec![],
             version: "1.0.0".to_string(),
         });
     }
@@ -212,6 +230,7 @@ async fn execute_script(working_dir: String, command: String) -> Result<String, 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_autostart::init(

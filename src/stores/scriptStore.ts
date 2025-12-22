@@ -51,6 +51,7 @@ export const useScriptStore = defineStore("script", () => {
       const config: AppConfig = {
         theme: "dark",
         scripts: scripts.value,
+        snippets: [],
         version: "1.0.0",
       };
       await invoke("save_config", { config });
