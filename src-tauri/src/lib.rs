@@ -209,8 +209,14 @@ async fn execute_script(working_dir: String, command: String) -> Result<String, 
     #[cfg(target_os = "windows")]
     {
         Command::new("cmd")
-            .args(["/C", "start", "cmd", "/K", &command])
-            .current_dir(&working_dir)
+            .args([
+                "/C",
+                "start",
+                "powershell",
+                "-NoExit",
+                "-Command",
+                &format!("Set-Location '{}'; {}", working_dir, command)
+            ])
             .spawn()
             .map_err(|e| format!("执行失败: {}", e))?;
     }
