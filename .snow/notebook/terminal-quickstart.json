@@ -1,0 +1,11 @@
+{
+  "src-tauri/src/lib.rs": [
+    {
+      "id": "notebook-1766730051312_f7oznnv6k",
+      "filePath": "src-tauri/src/lib.rs",
+      "note": "⚠️ execute_script 函数使用 Windows Terminal (wt) + \"Zsh + Starship\" 配置启动命令。如果用户没有这个配置文件，需要回退到 PowerShell。配置名称必须与 Windows Terminal settings.json 中的 profile name 完全匹配。",
+      "createdAt": "2025-12-26T14:20:51.312",
+      "updatedAt": "2025-12-26T14:20:51.312"
+    }
+  ]
+}

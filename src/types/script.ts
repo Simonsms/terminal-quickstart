@@ -33,6 +33,11 @@ export interface ScriptConfig {
 }
 
 /**
+ * 终端类型
+ */
+export type TerminalType = "powershell7" | "zsh-starship";
+
+/**
  * 应用配置
  */
 export interface AppConfig {
@@ -42,6 +47,8 @@ export interface AppConfig {
   scripts: ScriptConfig[];
   /** 句子片段列表 */
   snippets: import("./snippet").SnippetConfig[];
+  /** 终端类型 */
+  terminalType: TerminalType;
   /** 配置版本号 */
   version: string;
 }

@@ -5,6 +5,7 @@ import type {
   AppConfig,
   CommandConfig,
   ScriptFormData,
+  TerminalType,
 } from "../types/script";
 import { invoke } from "@tauri-apps/api/core";
 
@@ -16,6 +17,7 @@ export const useScriptStore = defineStore("script", () => {
   const scripts = ref<ScriptConfig[]>([]);
   const currentEditingScript = ref<ScriptConfig | null>(null);
   const isLoading = ref(false);
+  const terminalType = ref<TerminalType>("powershell7");
 
   // 计算属性
   const scriptCount = computed(() => scripts.value.length);
@@ -35,6 +37,7 @@ export const useScriptStore = defineStore("script", () => {
       isLoading.value = true;
       const config = await invoke<AppConfig>("load_config");
       scripts.value = config.scripts || [];
+      terminalType.value = config.terminalType || "powershell7";
     } catch (error) {
       console.error("加载配置失败:", error);
       scripts.value = [];
@@ -44,14 +47,18 @@ export const useScriptStore = defineStore("script", () => {
   };
 
   /**
-   * 保存配置
+   * 保存配置（需要从 snippetStore 获取 snippets 数据）
    */
   const saveConfig = async () => {
     try {
+      const { useSnippetStore } = await import("./snippetStore");
+      const snippetStore = useSnippetStore();
+
       const config: AppConfig = {
         theme: "dark",
         scripts: scripts.value,
-        snippets: [],
+        snippets: snippetStore.snippets,
+        terminalType: terminalType.value,
         version: "1.0.0",
       };
       await invoke("save_config", { config });
@@ -59,6 +66,14 @@ export const useScriptStore = defineStore("script", () => {
       console.error("保存配置失败:", error);
       throw error;
     }
+  };
+
+  /**
+   * 设置终端类型
+   */
+  const setTerminalType = async (type: TerminalType) => {
+    terminalType.value = type;
+    await saveConfig();
   };
 
   /**
@@ -162,6 +177,7 @@ export const useScriptStore = defineStore("script", () => {
       await invoke("execute_script", {
         workingDir: script.workingDir,
         command: cmd.command,
+        terminalType: terminalType.value,
       });
     } catch (error) {
       console.error("执行脚本失败:", error);
@@ -174,6 +190,7 @@ export const useScriptStore = defineStore("script", () => {
     scripts,
     currentEditingScript,
     isLoading,
+    terminalType,
     // 计算属性
     scriptCount,
     // 方法
@@ -184,6 +201,7 @@ export const useScriptStore = defineStore("script", () => {
     deleteScript,
     getScript,
     setEditingScript,
+    setTerminalType,
     executeScript,
   };
 });

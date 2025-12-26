@@ -53,6 +53,36 @@
       </div>
 
       <div class="settings-section">
+        <h3 class="section-title">终端</h3>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">默认终端类型</span>
+            <p class="setting-description">选择执行脚本时使用的终端环境</p>
+          </div>
+          <div class="setting-value">
+            <div class="terminal-switcher">
+              <button
+                class="terminal-btn"
+                :class="{ active: terminalType === 'powershell7' }"
+                @click="handleTerminalChange('powershell7')"
+              >
+                <span class="terminal-icon">⚡</span>
+                <span>PowerShell 7</span>
+              </button>
+              <button
+                class="terminal-btn"
+                :class="{ active: terminalType === 'zsh-starship' }"
+                @click="handleTerminalChange('zsh-starship')"
+              >
+                <span class="terminal-icon">🚀</span>
+                <span>Zsh + Starship</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
         <h3 class="section-title">数据存储</h3>
         <div class="setting-item">
           <div class="setting-info">
@@ -98,17 +128,25 @@ import { invoke } from "@tauri-apps/api/core";
 import { ElMessage } from "element-plus";
 import { FolderOpened, Sunny, Moon } from "@element-plus/icons-vue";
 import { useThemeStore } from "../stores/themeStore";
+import { useScriptStore } from "../stores/scriptStore";
 import { storeToRefs } from "pinia";
+import type { TerminalType } from "../types/script";
 
 const themeStore = useThemeStore();
 const { theme } = storeToRefs(themeStore);
 const { setTheme } = themeStore;
+
+const scriptStore = useScriptStore();
+const { terminalType } = storeToRefs(scriptStore);
 
 const configPath = ref<string>("");
 const autostart = ref(false);
 const autostartLoading = ref(false);
 
 onMounted(async () => {
+  // 加载脚本配置（包含终端类型设置）
+  await scriptStore.loadConfig();
+
   try {
     configPath.value = await invoke<string>("get_config_file_path");
   } catch (error) {
@@ -144,6 +182,18 @@ const openConfigFolder = async () => {
     await invoke("open_config_folder");
   } catch (error) {
     console.error("打开目录失败:", error);
+  }
+};
+
+const handleTerminalChange = async (type: TerminalType) => {
+  try {
+    await scriptStore.setTerminalType(type);
+    ElMessage.success(
+      `已切换到 ${type === "powershell7" ? "PowerShell 7" : "Zsh + Starship"}`
+    );
+  } catch (error) {
+    console.error("设置终端类型失败:", error);
+    ElMessage.error("设置失败");
   }
 };
 </script>
@@ -278,5 +328,48 @@ const openConfigFolder = async () => {
 
 .theme-btn.active:hover {
   background: var(--primary-light);
+}
+
+/* 终端切换样式 */
+.terminal-switcher {
+  display: flex;
+  gap: 8px;
+}
+
+.terminal-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.terminal-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.terminal-btn.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb, 64, 158, 255), 0.4);
+}
+
+.terminal-btn.active:hover {
+  background: var(--primary-color);
+  opacity: 0.9;
+}
+
+.terminal-icon {
+  font-size: 16px;
 }
 </style>

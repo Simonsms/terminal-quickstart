@@ -53,7 +53,14 @@ struct AppConfig {
     scripts: Vec<ScriptConfig>,
     #[serde(default)]
     snippets: Vec<SnippetConfig>,
+    /// 终端类型: "powershell7" 或 "zsh-starship"
+    #[serde(default = "default_terminal_type", rename = "terminalType")]
+    terminal_type: String,
     version: String,
+}
+
+fn default_terminal_type() -> String {
+    "powershell7".to_string()
 }
 
 /// 迁移旧配置格式到新格式
@@ -136,6 +143,7 @@ fn load_config(app: tauri::AppHandle) -> Result<AppConfig, String> {
             theme: "dark".to_string(),
             scripts: vec![],
             snippets: vec![],
+            terminal_type: default_terminal_type(),
             version: "1.0.0".to_string(),
         });
     }
@@ -205,24 +213,74 @@ fn set_autostart(app: tauri::AppHandle, enabled: bool) -> Result<(), String> {
 
 /// 执行脚本
 #[tauri::command]
-async fn execute_script(working_dir: String, command: String) -> Result<String, String> {
+async fn execute_script(working_dir: String, command: String, terminal_type: String) -> Result<String, String> {
     #[cfg(target_os = "windows")]
     {
-        Command::new("cmd")
-            .args([
-                "/C",
-                "start",
-                "powershell",
-                "-NoExit",
-                "-Command",
-                &format!("Set-Location '{}'; {}", working_dir, command)
-            ])
-            .spawn()
-            .map_err(|e| format!("执行失败: {}", e))?;
+        // Windows Terminal 完整路径
+        let wt_path = format!(
+            "{}\\AppData\\Local\\Microsoft\\WindowsApps\\wt.exe",
+            std::env::var("USERPROFILE").unwrap_or_else(|_| "C:\\Users\\赵祥".to_string())
+        );
+        
+        if terminal_type == "zsh-starship" {
+            // Zsh + Starship 方式：直接传递命令
+            let unix_working_dir = working_dir.replace("\\", "/");
+            
+            // 使用 && 连接命令，避免 ; 被 Windows Terminal 解析
+            // 不用 read -p 带参数的形式，改用 echo + read
+            let full_command = format!(
+                "cd '{}' && {} && echo && echo Press\\ Enter\\ to\\ exit... && read",
+                unix_working_dir,
+                command
+            );
+            
+            // 使用 wt 启动 Zsh + Starship profile
+            Command::new(&wt_path)
+                .args([
+                    "-p", "Zsh + Starship",
+                    "-d", &working_dir,
+                    "--",
+                    "C:\\Program Files\\Git\\bin\\bash.exe",
+                    "--login",
+                    "-c",
+                    &full_command
+                ])
+                .spawn()
+                .map_err(|e| format!("执行失败: {}", e))?;
+        } else {
+            // PowerShell 7 方式
+            let temp_dir = std::env::temp_dir();
+            let script_path = temp_dir.join(format!("tqs_{}.ps1", std::process::id()));
+            
+            let script_content = format!(
+                "Set-Location '{}'\n{}\nWrite-Host ''\nRead-Host 'Press Enter to exit'",
+                working_dir.replace("'", "''"),
+                command
+            );
+            
+            std::fs::write(&script_path, &script_content)
+                .map_err(|e| format!("创建脚本失败: {}", e))?;
+            
+            let script_path_str = script_path.to_string_lossy().to_string();
+            
+            Command::new(&wt_path)
+                .args([
+                    "-p", "PowerShell",
+                    "-d", &working_dir,
+                    "--",
+                    "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+                    "-NoLogo",
+                    "-ExecutionPolicy", "Bypass",
+                    "-File", &script_path_str
+                ])
+                .spawn()
+                .map_err(|e| format!("执行失败: {}", e))?;
+        }
     }
     
     #[cfg(not(target_os = "windows"))]
     {
+        let _ = terminal_type; // 避免未使用警告
         Command::new("sh")
             .args(["-c", &command])
             .current_dir(&working_dir)

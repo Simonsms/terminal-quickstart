@@ -85,6 +85,7 @@ export const useSnippetStore = defineStore("snippet", () => {
         theme: "dark",
         scripts: scriptStore.scripts,
         snippets: snippets.value,
+        terminalType: scriptStore.terminalType,
         version: "1.0.0",
       };
       await invoke("save_config", { config });
